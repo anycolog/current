@@ -1,28 +1,52 @@
-# current
+# Cursor Agents Backup/Restore
 
-Рабочий репозиторий для хранения экспортов диалогов Cursor и сопутствующих материалов по задачам настройки и сопровождения Git/Cursor.
+Этот репозиторий хранит экспорт истории Cursor Agents в `chat-history/` и скрипты для переноса между машинами.
 
-## Что уже сделано
+## Что внутри
 
-- Создан репозиторий `anycolog/current`.
-- Добавлен архив диалога в `chat-history`.
-- Подтверждено отсутствие открытых `Issues` и `Pull Requests` в GitHub-репозитории.
+- `chat-history/*.jsonl` — архив экспортированных чатов
+- `scripts/export_agents.ps1` — экспорт чатов из локального Cursor в репозиторий
+- `scripts/restore_agents.ps1` — восстановление чатов из репозитория в локальный Cursor
 
-## Текущие задачи
+## Шаг 1. На исходной машине (экспорт)
 
-- [x] Зафиксировать текущее состояние репозитория и прогресс.
-- [x] Добавить дополнительный материал по выполненным действиям.
-- [ ] Поддерживать пополнение `chat-history` новыми релевантными логами.
-- [ ] При появлении формальных задач в GitHub перенести их в этот чеклист.
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\export_agents.ps1 \
+  -ProjectId "c-Users-your-user-Documents-GitHub-your-project"
+```
 
-## Структура
+Опционально можно указать точный путь `-ProjectRoot` вместо `-ProjectId`.
 
-- `chat-history/` — экспортированные JSONL-логи и служебные отчеты по выполнению.
+## Шаг 2. Отправка в GitHub
 
-## Как продолжать работу
+```powershell
+git add chat-history scripts README.md
+git commit -m "Update Cursor agents archive"
+git push
+```
 
-1. Добавлять новые логи и краткое описание контекста.
-2. Проверять состояние репозитория перед публикацией:
-   - `git status`
-   - `git log --oneline -n 10`
-3. Публиковать изменения в `main` только после проверки содержимого файлов.
+## Шаг 3. На другой машине (восстановление)
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\restore_agents.ps1 \
+  -ProjectId "c-Users-your-user-Documents-GitHub-your-project"
+```
+
+Если не знаете `ProjectId`, укажите `-ProjectRoot`.
+
+## Шаг 4. Обновить Cursor
+
+- Откройте нужный проект в Cursor
+- Если чаты не появились сразу — перезапустите Cursor
+
+## Примечания
+
+- Файлы могут содержать чувствительные данные. Используйте приватный репозиторий.
+- Скрипты создают структуру вида `agent-transcripts/<uuid>/<uuid>.jsonl`.
+
+## Рабочие заметки
+
+- `chat-history/` — экспортированные JSONL-логи и служебные отчеты.
+- Перед публикацией проверяйте:
+  - `git status`
+  - `git log --oneline -n 10`
